@@ -3,6 +3,16 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('Seeding categories...');
+  const category = await prisma.category.upsert({
+    where: { slug: 'makanan-olahan' },
+    update: {},
+    create: {
+      name: 'Makanan Olahan',
+      slug: 'makanan-olahan',
+    },
+  });
+
   console.log('Seeding products...');
   // Seed Product
   await prisma.product.upsert({
@@ -18,6 +28,7 @@ async function main() {
       unit: 'bungkus',
       certification: 'P-IRT No. 2068804011911-26',
       isActive: true,
+      categoryId: category.id,
     },
   });
 

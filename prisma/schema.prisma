@@ -9,21 +9,33 @@ datasource db {
 }
 
 model Product {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   name          String
-  slug          String   @unique
-  description   String?  @db.Text
-  price         Decimal  @db.Decimal(12, 0)
-  stock         Int      @default(0)
+  slug          String      @unique
+  description   String?     @db.Text
+  price         Decimal     @db.Decimal(12, 0)
+  stock         Int         @default(0)
   weight        Int?
-  unit          String   @default("bungkus")
+  unit          String      @default("bungkus")
   imageUrl      String?
   certification String?
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  categoryId    String?
+  category      Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  orderItems    OrderItem[]
 
   @@map("products")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+
+  @@map("categories")
 }
 
 model ProfileContent {
@@ -50,4 +62,30 @@ model OrganizationMember {
   isManagement Boolean @default(false)
 
   @@map("organization_members")
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  customerName String
+  whatsapp     String
+  address      String?     @db.Text
+  totalAmount  Decimal     @db.Decimal(12, 0)
+  status       String      @default("PENDING")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  qty       Int
+  price     Decimal  @db.Decimal(12, 0)
+
+  @@map("order_items")
 }
